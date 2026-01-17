@@ -1,6 +1,9 @@
 import os
 import pytest
 from playwright.sync_api import expect
+import dotenv
+from dotenv import load_dotenv
+
 
 
 @pytest.mark.smoke

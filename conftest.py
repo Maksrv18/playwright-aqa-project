@@ -2,6 +2,10 @@ import pytest
 from pages.login_page import LoginPage
 import os
 from dotenv import load_dotenv
+import os
+from pathlib import Path
+import allure
+from allure_commons.types import AttachmentType
 
 load_dotenv()
 
@@ -10,14 +14,6 @@ def login_page(page):
     login = LoginPage(page)
     login.open()
     return login
-
-import os
-from pathlib import Path
-
-import allure
-import pytest
-from allure_commons.types import AttachmentType
-
 
 @pytest.hookimpl(tryfirst=True, hookwrapper=True)
 def pytest_runtest_makereport(item, call):
