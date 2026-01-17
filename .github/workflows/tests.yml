@@ -9,11 +9,11 @@ on:
 
 jobs:
     smoke:
-    name: Smoke (on push/PR)
-    if: github.event_name == 'push' || github.event_name == 'pull_request'
-    runs-on: ubuntu-latest
+     name: Smoke (on push/PR)
+     if: github.event_name == 'push' || github.event_name == 'pull_request'
+     runs-on: ubuntu-latest
 
-    env:
+     env:
       BASE_URL: ${{ secrets.BASE_URL }}
       VALID_USER_EMAIL: ${{ secrets.VALID_USER_EMAIL }}
       VALID_USER_PASSWORD: ${{ secrets.VALID_USER_PASSWORD }}
@@ -77,17 +77,17 @@ jobs:
           name: playwright-artifacts-smoke-${{ matrix.browser }}
           path: test-results/
     regression:
-    name: Regression (nightly / manual)
-    if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
-    runs-on: ubuntu-latest
+      name: Regression (nightly / manual)
+      if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
+      runs-on: ubuntu-latest
 
-    env:
-      BASE_URL: ${{ secrets.BASE_URL }}
-      VALID_USER_EMAIL: ${{ secrets.VALID_USER_EMAIL }}
-      VALID_USER_PASSWORD: ${{ secrets.VALID_USER_PASSWORD }}
-      INVALID_USER_EMAIL: ${{ secrets.INVALID_USER_EMAIL }}
-      INVALID_USER_PASSWORD: ${{ secrets.INVALID_USER_PASSWORD }}
-      BROWSER: ${{ secrets.BROWSER }}
+      env:
+       BASE_URL: ${{ secrets.BASE_URL }}
+       VALID_USER_EMAIL: ${{ secrets.VALID_USER_EMAIL }}
+       VALID_USER_PASSWORD: ${{ secrets.VALID_USER_PASSWORD }}
+       INVALID_USER_EMAIL: ${{ secrets.INVALID_USER_EMAIL }}
+       INVALID_USER_PASSWORD: ${{ secrets.INVALID_USER_PASSWORD }}
+       BROWSER: ${{ secrets.BROWSER }}
 
     steps:
       - uses: actions/checkout@v4
