@@ -13,6 +13,14 @@ jobs:
     if: github.event_name == 'push' || github.event_name == 'pull_request'
     runs-on: ubuntu-latest
 
+    env:
+      BASE_URL: ${{ secrets.BASE_URL }}
+      VALID_USER_EMAIL: ${{ secrets.VALID_USER_EMAIL }}
+      VALID_USER_PASSWORD: ${{ secrets.VALID_USER_PASSWORD }}
+      INVALID_USER_EMAIL: ${{ secrets.INVALID_USER_EMAIL }}
+      INVALID_USER_PASSWORD: ${{ secrets.INVALID_USER_PASSWORD }}
+      BROWSER: ${{ secrets.BROWSER }}
+
     strategy:
       fail-fast: false
       matrix:
@@ -72,6 +80,14 @@ jobs:
     name: Regression (nightly / manual)
     if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
     runs-on: ubuntu-latest
+
+    env:
+      BASE_URL: ${{ secrets.BASE_URL }}
+      VALID_USER_EMAIL: ${{ secrets.VALID_USER_EMAIL }}
+      VALID_USER_PASSWORD: ${{ secrets.VALID_USER_PASSWORD }}
+      INVALID_USER_EMAIL: ${{ secrets.INVALID_USER_EMAIL }}
+      INVALID_USER_PASSWORD: ${{ secrets.INVALID_USER_PASSWORD }}
+      BROWSER: ${{ secrets.BROWSER }}
 
     steps:
       - uses: actions/checkout@v4

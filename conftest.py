@@ -1,5 +1,9 @@
 import pytest
 from pages.login_page import LoginPage
+import os
+from dotenv import load_dotenv
+
+load_dotenv()
 
 @pytest.fixture
 def login_page(page):

@@ -1,17 +1,14 @@
+import os
 import pytest
-import allure
 from playwright.sync_api import expect
 
-from data.users import VALID_USER, INVALID_USER
 
-
-@allure.title("User can login with valid credentials")
-@allure.severity(allure.severity_level.CRITICAL)
-@allure.tag("smoke", "auth")
 @pytest.mark.smoke
 def test_user_can_login(login_page):
-    login_page.open()
-    login_page.login(VALID_USER["email"], VALID_USER["password"])
+    login_page.login(
+        os.getenv("VALID_USER_EMAIL"),
+        os.getenv("VALID_USER_PASSWORD")
+    )
 
     expect(login_page.page.get_by_text("You logged into a secure area!")).to_be_visible()
 
