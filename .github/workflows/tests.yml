@@ -36,7 +36,6 @@ jobs:
           mkdir -p allure-results test-results
           python -m pytest -v \
             --browser chromium \
-            --headless \
             --alluredir=allure-results \
             --tracing retain-on-failure \
             --video retain-on-failure \
