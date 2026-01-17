@@ -3,14 +3,18 @@ name: Playwright UI tests + Allure
 on:
   push:
   pull_request:
+  workflow_dispatch:
+  schedule:
+    - cron: "0 2 * * *" # каждый день в 02:00 UTC (ночной регресс)
 
 jobs:
-  tests:
+  smoke:
+    name: Smoke (on push/PR)
+    if: github.event_name == 'push' || github.event_name == 'pull_request'
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
       - name: Set up Python
         uses: actions/setup-python@v5
@@ -29,12 +33,11 @@ jobs:
       - name: Install Allure CLI
         run: |
           npm i -g allure-commandline --save-dev
-          allure --version
 
-      - name: Run tests (create allure-results + playwright artifacts)
+      - name: Run SMOKE tests
         run: |
           mkdir -p allure-results test-results
-          python -m pytest -v \
+          python -m pytest -v -m smoke \
             --browser chromium \
             --alluredir=allure-results \
             --tracing retain-on-failure \
@@ -51,12 +54,68 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: allure-report
+          name: allure-report-smoke
           path: allure-report/
 
-      - name: Upload Playwright artifacts (trace/video/screenshots)
+      - name: Upload Playwright artifacts
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: playwright-artifacts
+          name: playwright-artifacts-smoke
+          path: test-results/
+
+  regression:
+    name: Regression (nightly / manual)
+    if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install dependencies
+        run: |
+          python -m pip install -U pip
+          python -m pip install -r requirements.txt
+
+      - name: Install Playwright browsers
+        run: |
+          python -m playwright install --with-deps
+
+      - name: Install Allure CLI
+        run: |
+          npm i -g allure-commandline --save-dev
+
+      - name: Run REGRESSION tests
+        run: |
+          mkdir -p allure-results test-results
+          python -m pytest -v -m regression \
+            --browser chromium \
+            --alluredir=allure-results \
+            --tracing retain-on-failure \
+            --video retain-on-failure \
+            --screenshot only-on-failure \
+            --output test-results
+
+      - name: Generate Allure report (HTML)
+        if: always()
+        run: |
+          allure generate allure-results -o allure-report --clean
+
+      - name: Upload Allure report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: allure-report-regression
+          path: allure-report/
+
+      - name: Upload Playwright artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-artifacts-regression
           path: test-results/
