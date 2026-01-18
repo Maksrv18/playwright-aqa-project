@@ -6,3 +6,4 @@ allure-report/
 test-results/
 *.pyc
 .DS_Store
+.env
