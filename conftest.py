@@ -1,48 +1,134 @@
 import pytest
-from pages.login_page import LoginPage
-import os
-from dotenv import load_dotenv
+import requests
 import os
 from pathlib import Path
+
 import allure
 from allure_commons.types import AttachmentType
+from dotenv import load_dotenv
+from playwright.sync_api import Page
+
+from pages.login_page import LoginPage
+from pages.home_page import HomePage
+from pages.clubs_page import ClubsPage
+from pages.tariffs_page import TariffsPage
+from pages.faq_page import FaqPage
+from pages.promo_page import PromoPage
 
 load_dotenv()
 
+# ──────────────────────────────────────────────
+# Browser / context settings
+# ──────────────────────────────────────────────
+
+@pytest.fixture(scope="session")
+def browser_context_args(browser_context_args):
+    """Override default context: viewport, locale, user-agent."""
+    return {
+        **browser_context_args,
+        "viewport": {"width": 1280, "height": 720},
+        "locale": "ru-RU",
+        "ignore_https_errors": True,
+    }
+
+
+# ──────────────────────────────────────────────
+# Legacy fixture (the-internet.herokuapp.com)
+# ──────────────────────────────────────────────
+
 @pytest.fixture
-def login_page(page):
+def login_page(page: Page):
     login = LoginPage(page)
     login.open()
     return login
 
+
+# ──────────────────────────────────────────────
+# DDX Fitness — page fixtures
+# ──────────────────────────────────────────────
+
+@pytest.fixture
+def home_page(page: Page):
+    hp = HomePage(page)
+    hp.open()
+    return hp
+
+
+@pytest.fixture
+def clubs_page(page: Page):
+    cp = ClubsPage(page)
+    cp.open()
+    return cp
+
+
+@pytest.fixture
+def tariffs_page(page: Page):
+    tp = TariffsPage(page)
+    tp.open()
+    return tp
+
+
+@pytest.fixture
+def faq_page(page: Page):
+    fp = FaqPage(page)
+    fp.open()
+    return fp
+
+
+@pytest.fixture
+def promo_page(page: Page):
+    pp = PromoPage(page)
+    pp.open()
+    return pp
+
+
+# ──────────────────────────────────────────────
+# API fixture
+# ──────────────────────────────────────────────
+
+@pytest.fixture(scope="session")
+def api_client():
+    """Requests session with common headers for API tests."""
+    session = requests.Session()
+    session.headers.update({
+        "Accept": "application/json",
+        "Content-Type": "application/json",
+        "User-Agent": "DDX-AQA-Bot/1.0",
+    })
+    yield session
+    session.close()
+
+
+# ──────────────────────────────────────────────
+# Allure: screenshot + trace on failure
+# ──────────────────────────────────────────────
+
 @pytest.hookimpl(tryfirst=True, hookwrapper=True)
 def pytest_runtest_makereport(item, call):
-    # Получаем результат выполнения теста
     outcome = yield
     rep = outcome.get_result()
 
-    # Нас интересует именно падение на этапе выполнения теста (call)
     if rep.when != "call" or rep.passed:
         return
 
-    page = item.funcargs.get("page")
+    page: Page | None = item.funcargs.get("page")
     if page is None:
         return
 
-    # 1) Скриншот
     try:
         png = page.screenshot(full_page=True)
         allure.attach(png, name="screenshot", attachment_type=AttachmentType.PNG)
     except Exception:
         pass
 
-    # 2) Trace.zip (pytest-playwright сохраняет в папку --output, обычно test-results/)
-    # Попытаемся найти trace.zip рядом с артефактами текущего теста
     try:
         output_dir = Path(item.config.getoption("--output") or "test-results")
         trace_files = list(output_dir.rglob("trace.zip"))
         if trace_files:
-            trace_path = trace_files[-1]
-            allure.attach.file(str(trace_path), name="trace", attachment_type=AttachmentType.ZIP)
+            allure.attach.file(
+                str(trace_files[-1]),
+                name="trace",
+                attachment_type=AttachmentType.ZIP,
+            )
     except Exception:
         pass
