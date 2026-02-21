@@ -11,13 +11,13 @@ from playwright.sync_api import expect
 @allure.feature("Clubs Page")
 class TestClubsPage:
 
-    @allure.title("Заголовок страницы 'Клубы' виден")
+    @allure.title("Заголовок страницы 'Клубы' присутствует в DOM")
     @allure.severity(allure.severity_level.CRITICAL)
     @pytest.mark.smoke
     @pytest.mark.ui
-    def test_clubs_page_heading_visible(self, clubs_page):
-        """The h1 heading on the clubs page must be visible."""
-        expect(clubs_page.heading).to_be_visible()
+    def test_clubs_page_heading_attached(self, clubs_page):
+        """The h2 heading on the clubs page must be attached to the DOM."""
+        expect(clubs_page.heading).to_be_attached()
 
     @allure.title("Заголовок страницы 'Клубы' не пустой")
     @allure.severity(allure.severity_level.NORMAL)

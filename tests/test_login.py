@@ -5,8 +5,10 @@ from playwright.sync_api import expect
 import dotenv
 from dotenv import load_dotenv
 
+from data.users import INVALID_USER
 
 
+@pytest.mark.skip(reason="Legacy test for the-internet.herokuapp.com, not DDX")
 @pytest.mark.smoke
 def test_user_can_login(login_page):
     login_page.login(
@@ -17,6 +19,7 @@ def test_user_can_login(login_page):
     expect(login_page.page.get_by_text("You logged into a secure area!")).to_be_visible()
 
 
+@pytest.mark.skip(reason="Legacy test")
 @allure.title("Invalid login shows error message")
 @allure.severity(allure.severity_level.NORMAL)
 @allure.tag("regression", "auth")
@@ -29,6 +32,7 @@ def test_invalid_login_shows_error(login_page):
     expect(login_page.flash_message).to_contain_text("Your username is invalid!")
 
 
+@pytest.mark.skip(reason="Legacy test")
 @allure.title("Login button is visible on login page")
 @allure.severity(allure.severity_level.MINOR)
 @allure.tag("smoke", "ui")
