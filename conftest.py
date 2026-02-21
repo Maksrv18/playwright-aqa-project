@@ -8,7 +8,6 @@ from allure_commons.types import AttachmentType
 from dotenv import load_dotenv
 from playwright.sync_api import Page
 
-from pages.login_page import LoginPage
 from pages.home_page import HomePage
 from pages.clubs_page import ClubsPage
 from pages.tariffs_page import TariffsPage
@@ -30,17 +29,6 @@ def browser_context_args(browser_context_args):
         "locale": "ru-RU",
         "ignore_https_errors": True,
     }
-
-
-# ──────────────────────────────────────────────
-# Legacy fixture (the-internet.herokuapp.com)
-# ──────────────────────────────────────────────
-
-@pytest.fixture
-def login_page(page: Page):
-    login = LoginPage(page)
-    login.open()
-    return login
 
 
 # ──────────────────────────────────────────────
